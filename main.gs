@@ -75,6 +75,23 @@ function getConfig(request) {
     );
 
   connectorConfig
+    .newSelectSingle()
+    .setId('noquoteunquote')
+    .setName('Unquote value if detected')
+    .addOption(
+      connectorConfig
+        .newOptionBuilder()
+        .setLabel('Yes')
+        .setValue('yes')
+    )
+    .addOption(
+      connectorConfig
+        .newOptionBuilder()
+        .setLabel('No')
+        .setValue('no')
+    );
+
+  connectorConfig
     .newTextInput()
     .setId('numericfields')
     .setName('Fields with numeric values');
@@ -148,6 +165,7 @@ function getFields(request, content) {
   var types = communityConnector.FieldType;
   var textQualifier = request.configParams.textQualifier;
   var containsHeader = request.configParams.containsHeader;
+  var numericfields = request.configParams.numericfields.split(",");
 
   var lineSeparator = findLineSeparator(content);
   var firstLineContent;
@@ -168,7 +186,12 @@ function getFields(request, content) {
 
   var i = 1;
   firstLineColumns.forEach(function(value) {
+    var t = types.TEXT;
+    if (numericfields.includes(value)) {
+      t = types.NUMBER;
+    }
     var field = fields.newDimension().setType(types.TEXT);
+    
     if (containsHeader === 'true') {
       // because Id can't have space
       field.setId(value.replace(/\s/g, '_').toLowerCase());
@@ -192,6 +215,10 @@ function getSchema(request) {
 
 function getData(request) {
   var content = fetchData(request.configParams.url, request.configParams.userpass);
+
+  var noquoteunquote = false;
+  if (request.configParams.noquoteunquote == 'yes')
+    noquoteunquote = true;
 
   var requestedFieldIds = request.fields.map(function(field) {
     return field.name;
@@ -250,7 +277,11 @@ function getData(request) {
       }
       requestedValues = [];
       requestedFieldsIndex.forEach(function(value) {
-        requestedValues.push(allValues[value]);
+        var v = allValues[value];
+        if (noquoteunquote && v[0] == '"'){ // TODO NOT WORKING
+          v = v.substr(1,v.length-2);
+        }
+        requestedValues.push(v);
       });
       return {values: requestedValues};
     });
