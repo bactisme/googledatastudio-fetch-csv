@@ -123,7 +123,6 @@ function fetchData(url, userpass) {
     sendUserError('"' + url + '" is not a valid url.');
   }
   var response;
-  Logger.log("Start Fetching");
   if (userpass != ""){
     var headers = {
       "Authorization" : "Basic " + Utilities.base64Encode(userpass),
@@ -132,24 +131,15 @@ function fetchData(url, userpass) {
       "method":"GET",
       "headers":headers
     };
-    var response = UrlFetchApp.fetch(url, params);
-    var content = response.getContentText();
-    if (!content) {
-      Logger.log("Error FetchData with password")
-      sendUserError('"' + url + '" returned no content.');
-    }
-    Logger.log("End Fetching");
-    return content;
+    response = UrlFetchApp.fetch(url, params);
   }else {
-    var response = UrlFetchApp.fetch(url);
-    var content = response.getContentText();
-    if (!content) {
-      Logger.log("Error FetchData with password")
-      sendUserError('"' + url + '" returned no content.');
-    }
-    Logger.log("End Fetching");
-    return content;
+    response = UrlFetchApp.fetch(url);
   }
+  var content = response.getContentText();
+  if (!content) {
+    sendUserError('"' + url + '" returned no content.');
+  }
+  return content;
 }
 
 function getFields(request, content) {
