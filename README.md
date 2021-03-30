@@ -1,4 +1,4 @@
-# Fetch CSV
+# Google Apps Script / Datastudio Connector / Fetch CSV
 
 Google Datastudio is not natively able to pull CSV.
 There is some available code [here](https://github.com/googledatastudio/community-connectors/tree/master/fetch-csv), on the community connectors.
